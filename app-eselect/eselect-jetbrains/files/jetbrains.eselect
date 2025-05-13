@@ -1,0 +1,130 @@
+# Copyright 1999-2024 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+DESCRIPTION="Manage JetBrains IDE versions"
+MAINTAINER="your-email@example.com"
+
+# Directory where JetBrains IDEs are installed
+JETBRAINS_DIR="/opt/jetbrains"
+
+do_list() {
+    if [[ -z "$1" ]]; then
+        echo "Error: No IDE specified."
+        return 1
+    fi
+
+    local IDE="$1"
+    local symlink="${JETBRAINS_DIR}/${IDE}"
+
+    echo "Available versions for $IDE:"
+    local i=1
+    local current_version=""
+
+    if [ -L "$symlink" ]; then
+        current_version=$(readlink "$symlink" | sed "s|$JETBRAINS_DIR/||" | sed "s|$IDE-||")
+    fi
+
+    local dirs=$(ls "$JETBRAINS_DIR" | grep -i "^${IDE}-")
+    for version in $dirs; do
+        version=$(echo "$version" | sed "s|^${IDE}-||")
+        printf "  [%d]\t%s" "$i" "$version"
+        if [ "$version" = "$current_version" ]; then
+            printf " *"
+        fi
+        printf "\n"
+        i=$((i+1))
+    done
+}
+
+do_show() {
+    if [[ -z "$1" ]]; then
+        echo "Error: No IDE specified."
+        return 1
+    fi
+
+    local IDE="$1"
+    local symlink="${JETBRAINS_DIR}/${IDE}"
+
+    if [[ -L "${symlink}" ]]; then
+        readlink "$symlink"
+    else
+        echo "No default $IDE version set."
+        return 1
+    fi
+}
+
+do_set() {
+    if [[ -z "$1" || -z "$2" ]]; then
+        echo "Error: Missing arguments. Usage: eselect jetbrains set <IDE> <version>"
+        return 1
+    fi
+
+    local IDE="$1"
+    local version="$2"
+    local symlink="${JETBRAINS_DIR}/${IDE}"
+
+    # Check if version is a number (index)
+    if [[ "$version" =~ ^[0-9]+$ ]]; then
+        # Get the list of versions
+        local dirs=$(ls "$JETBRAINS_DIR" | grep -i "^${IDE}-")
+        local versions=()
+        for dir in $dirs; do
+            versions+=($(echo "$dir" | sed "s|^${IDE}-||"))
+        done
+
+        local index=$((version - 1))
+
+        # Check if index is valid
+        if [[ $index -ge 0 && $index -lt ${#versions[@]} ]]; then
+            version="${versions[$index]}"
+        else
+            echo "Error: Invalid version index '${version}'."
+            return 1
+        fi
+    fi
+
+    local target_dir="${JETBRAINS_DIR}/${IDE}-${version}"
+    if [[ ! -d "${target_dir}" ]]; then
+        echo "Error: Version '${version}' not found in ${JETBRAINS_DIR}."
+        return 1
+    fi
+
+    # Create symlink (overwrite if exists)
+    ln -sfn "${target_dir}" "${symlink}" || {
+        echo "Failed to create symlink '${symlink}'."
+        return 1
+    }
+    echo "Default ${IDE} version set to '${version}'."
+}
+
+do_unset() {
+    if [[ -z "$1" ]]; then
+        echo "Error: No IDE specified."
+        return 1
+    fi
+
+    local IDE="$1"
+    local symlink="${JETBRAINS_DIR}/${IDE}"
+
+    if [[ -L "${symlink}" ]]; then
+        rm -f "${symlink}" && echo "Default $IDE version unset."
+    else
+        echo "No default $IDE version set."
+    fi
+}
+
+describe_list() {
+    echo "List installed versions of the specified JetBrains IDE, eselect jetbrains list <IDE>"
+}
+
+describe_show() {
+    echo "Show the currently selected version of the specified JetBrains IDE, eselect jetbrains show <IDE>"
+}
+
+describe_set() {
+    echo "Set the default version of the specified JetBrains IDE, eselect jetbrains set <IDE> <version>"
+}
+
+describe_unset() {
+    echo "Unset the default version of the specified JetBrains IDE, eselect jetbrains unset <IDE>"
+}
