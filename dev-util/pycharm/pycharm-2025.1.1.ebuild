@@ -9,8 +9,8 @@ EAPI=8
 
 SLOT="$PV"
 EXE="$PN"
-CNAME="CLion"
-FNAME="${CNAME}-${SLOT}.tar.gz"
+CNAME="PyCharm"
+FNAME="${PN}-${SLOT}.tar.gz"
 
 DESCRIPTION="JetBrains $CNAME IDE"
 HOMEPAGE="https://www.jetbrains.com"
