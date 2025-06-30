@@ -50,6 +50,6 @@ pkg_postinst() {
         einfo "optimizing install"
         pushd /opt/jetbrains && hrdups -v && popd
     fi
-    eselect jetbrains set clion "$SLOT"
+    eselect jetbrains set "$PN" "$SLOT"
     einfo "${PF} installed in /opt/jetbrains/${PF}"
 }

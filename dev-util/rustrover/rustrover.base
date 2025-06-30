@@ -9,12 +9,13 @@ EAPI=8
 
 SLOT="$PV"
 EXE="$PN"
-CNAME="PyCharm"
-FNAME="${PN}-professional-${SLOT}.tar.gz"
+CNAME="RustRover"
+FNAME="${CNAME}-${SLOT}.tar.gz"
+S="${WORKDIR}/${CNAME}-${SLOT}"
 
 DESCRIPTION="JetBrains $CNAME IDE"
 HOMEPAGE="https://www.jetbrains.com"
-SRC_URI="https://download-cdn.jetbrains.com/python/${FNAME}"
+SRC_URI="https://download-cdn.jetbrains.com/rustrover/${FNAME}"
 
 LICENSE="all-rights-reserved"
 KEYWORDS="amd64"
