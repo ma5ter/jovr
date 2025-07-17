@@ -9,13 +9,12 @@ EAPI=8
 
 SLOT="$PV"
 EXE="$PN"
-CNAME="RustRover"
-FNAME="${CNAME}-${SLOT}.tar.gz"
-S="${WORKDIR}/${CNAME}-${SLOT}"
+CNAME="Idea"
+FNAME="ideaIU-${SLOT}.tar.gz"
 
 DESCRIPTION="JetBrains $CNAME IDE"
 HOMEPAGE="https://www.jetbrains.com"
-SRC_URI="https://download-cdn.jetbrains.com/rustrover/${FNAME}"
+SRC_URI="https://download-cdn.jetbrains.com/idea/${FNAME}"
 
 LICENSE="all-rights-reserved"
 KEYWORDS="amd64"
@@ -28,6 +27,11 @@ RDEPEND="
 	>=app-eselect/eselect-jetbrains-0.1
 	hrdups? ( >=app-misc/hrdups-1.0.2 )
 "
+
+src_unpack() {
+    unpack ${FNAME}
+    mv "${WORKDIR}/$(ls -1 ${WORKDIR})" "${WORKDIR}/${PF}"
+}
 
 src_install() {
     # Create target directory

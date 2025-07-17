@@ -20,7 +20,7 @@ LICENSE="all-rights-reserved"
 KEYWORDS="amd64"
 RESTRICT="mirror bindist fetch"
 
-IUSE="+hrdups"
+IUSE="-hrdups"
 
 RDEPEND="
 	virtual/libcrypt
