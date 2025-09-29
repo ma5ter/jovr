@@ -7,10 +7,11 @@
 
 EAPI=8
 
-SLOT="$PV"
+vvv="${PV#*.}"
+SLOT="${PV%%.*}.${vvv%%.*}"
 EXE="$PN"
 CNAME="PyCharm"
-FNAME="${PN}-${SLOT}.tar.gz"
+FNAME="${PN}-${PV}.tar.gz"
 
 DESCRIPTION="JetBrains $CNAME IDE"
 HOMEPAGE="https://www.jetbrains.com"
@@ -38,7 +39,7 @@ src_install() {
     echo "[Desktop Entry]
 Name=$CNAME $SLOT
 Type=Application
-Comment=$DESCRIPTION $SLOT
+Comment=$DESCRIPTION $PV
 Exec=/opt/jetbrains/${PF}/bin/${EXE}
 TryExec=/opt/jetbrains/${PF}/bin/${EXE}
 Icon=/opt/jetbrains/${PF}/bin/${EXE}.svg
@@ -50,6 +51,6 @@ pkg_postinst() {
         einfo "optimizing install"
         pushd /opt/jetbrains && hrdups -v && popd
     fi
-    eselect jetbrains set "$PN" "$SLOT"
+    eselect jetbrains set "$PN" "$PV"
     einfo "${PF} installed in /opt/jetbrains/${PF}"
 }
