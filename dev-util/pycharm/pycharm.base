@@ -37,7 +37,7 @@ src_install() {
     cp -ar "${S}" "${D}/opt/jetbrains/${PF}"
     # Create a desktop entry
     echo "[Desktop Entry]
-Name=$CNAME $SLOT
+Name=$CNAME $PV
 Type=Application
 Comment=$DESCRIPTION $PV
 Exec=/opt/jetbrains/${PF}/bin/${EXE}
