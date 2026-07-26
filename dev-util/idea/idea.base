@@ -3,16 +3,19 @@
 
 # Regenerate the Manifest with correct checksums:
 # Download the file manually, place it in the /var/cache/distfiles directory,
-# then run ebuild <ebuild-file> digest to regenerate the Manifest with the new checksums.
+# then run:
+#   ebuild <ebuild-file> digest
 
 EAPI=8
 
-SLOT="$PV"
-EXE="$PN"
-CNAME="Idea"
-FNAME="ideaIU-${SLOT}.tar.gz"
+vvv="${PV#*.}"
+SLOT="${PV%%.*}.${vvv%%.*}"
 
-DESCRIPTION="JetBrains $CNAME IDE"
+EXE="${PN}"
+CNAME="Idea"
+FNAME="idea-${PV}.tar.gz"
+
+DESCRIPTION="JetBrains ${CNAME} IDE"
 HOMEPAGE="https://www.jetbrains.com"
 SRC_URI="https://download-cdn.jetbrains.com/idea/${FNAME}"
 
@@ -29,32 +32,41 @@ RDEPEND="
 "
 
 src_unpack() {
-    unpack ${FNAME}
-    mv "${WORKDIR}/$(ls -1 ${WORKDIR})" "${WORKDIR}/${PF}"
+	unpack "${FNAME}" || die
+
+	local d
+	d=$(find "${WORKDIR}" -mindepth 1 -maxdepth 1 -type d) || die
+	[[ -n ${d} ]] || die "Unable to locate extracted source directory"
+
+	mv "${d}" "${S}" || die
 }
 
 src_install() {
-    # Create target directory
-    dodir "/opt/jetbrains"
-    dodir "/usr/share/applications"
-    # Copy the extracted files
-    cp -ar "${S}" "${D}/opt/jetbrains/${PF}"
-    # Create a desktop entry
-    echo "[Desktop Entry]
-Name=$CNAME $SLOT
+	dodir /opt/jetbrains
+	dodir /usr/share/applications
+
+	cp -a "${S}" "${D}/opt/jetbrains/${PF}" || die
+
+	cat > "${D}/usr/share/applications/${PF}.desktop" <<EOF
+[Desktop Entry]
+Name=${CNAME} ${PV}
 Type=Application
-Comment=$DESCRIPTION $SLOT
+Comment=${DESCRIPTION} ${PV}
 Exec=/opt/jetbrains/${PF}/bin/${EXE}
 TryExec=/opt/jetbrains/${PF}/bin/${EXE}
 Icon=/opt/jetbrains/${PF}/bin/${EXE}.svg
-Categories=Development;IDE;" > "${D}/usr/share/applications/${PF}.desktop"
+Categories=Development;IDE;
+EOF
 }
 
 pkg_postinst() {
-    if use hrdups; then
-        einfo "optimizing install"
-        pushd /opt/jetbrains && hrdups -v && popd
-    fi
-    eselect jetbrains set "$PN" "$SLOT"
-    einfo "${PF} installed in /opt/jetbrains/${PF}"
+	if use hrdups; then
+		einfo "optimizing install"
+		pushd /opt/jetbrains >/dev/null || die
+		hrdups -v || die
+		popd >/dev/null || die
+	fi
+
+	eselect jetbrains set "${PN}" "${PV}"
+	einfo "${PF} installed in /opt/jetbrains/${PF}"
 }
