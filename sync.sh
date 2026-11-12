@@ -16,7 +16,7 @@ report_result() {
 	if (( changes )); then
 		git add .
 		git commit -m "upd"
-		git push
+		git push origin
 		echo "Changes!"
 	else
 		echo "No changes."
